@@ -15,6 +15,6 @@ ENV cgo '-nocgo'
 ENV CGO_ENABLED 0
 RUN make telegraf
 
-# # Running environment. From golang to alpine, multi-stage build gives an image size 90%(~800MB) smaller. # TODO: try scratch to shave some extra MBs
+# Running environment. From golang to alpine, multi-stage build gives an image size 90%(~800MB) smaller. # TODO: try scratch to shave some extra MBs
 FROM telegraf:1.20.4-alpine
-COPY --from=build-env /go/src/github.com/influxdata/telegraf/cmd/telegraf /usr/local/bin/
+COPY --from=build-env /go/src/github.com/influxdata/telegraf/telegraf /usr/bin/
