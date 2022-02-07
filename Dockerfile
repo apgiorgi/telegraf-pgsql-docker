@@ -1,22 +1,29 @@
-FROM golang:1.13 AS build-env
+FROM golang:1.17.2-alpine AS build-env
 
 # Install dep
-RUN curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
+#RUN curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
+
+# Install build dependencies
+RUN apk update && apk upgrade && \
+    apk add --no-cache bash git openssh make
 
 # Clone postgres branch
-RUN git clone -b postgres https://github.com/svenklemm/telegraf.git /go/src/github.com/influxdata/telegraf
+RUN git clone -b postgres https://github.com/phemmer/telegraf.git /go/src/github.com/influxdata/telegraf
 WORKDIR /go/src/github.com/influxdata/telegraf
 
 # Make static binary
 RUN make deps
-RUN make static
+ENV LDFLAGS '-w -s'
+ENV cgo '-nocgo'
+ENV CGO_ENABLED 0
+RUN make telegraf
 
-# Running environment. From golang to alpine, multi-stage build gives an image size 90%(~800MB) smaller. Use scratch to shave some extra MBs
-FROM alpine:3.11
-COPY --from=build-env /go/src/github.com/influxdata/telegraf/telegraf /usr/local/bin/
+# # Running environment. From golang to alpine, multi-stage build gives an image size 90%(~800MB) smaller. # TODO: try scratch to shave some extra MBs
+FROM telegraf:1.20.4-alpine
+COPY --from=build-env /go/src/github.com/influxdata/telegraf/cmd/telegraf /usr/local/bin/
 
-EXPOSE 8125/udp 8092/udp 8094
+# # EXPOSE 8125/udp 8092/udp 8094
 
-COPY entrypoint.sh /entrypoint.sh
-ENTRYPOINT ["/entrypoint.sh"]
-CMD ["telegraf"]
+# # COPY entrypoint.sh /entrypoint.sh
+# # ENTRYPOINT ["/entrypoint.sh"]
+# # CMD ["telegraf"]
