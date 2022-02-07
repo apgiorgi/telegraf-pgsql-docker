@@ -1,8 +1,5 @@
 FROM golang:1.17.2-alpine AS build-env
 
-# Install dep
-#RUN curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
-
 # Install build dependencies
 RUN apk update && apk upgrade && \
     apk add --no-cache bash git openssh make
@@ -21,9 +18,3 @@ RUN make telegraf
 # # Running environment. From golang to alpine, multi-stage build gives an image size 90%(~800MB) smaller. # TODO: try scratch to shave some extra MBs
 FROM telegraf:1.20.4-alpine
 COPY --from=build-env /go/src/github.com/influxdata/telegraf/cmd/telegraf /usr/local/bin/
-
-# # EXPOSE 8125/udp 8092/udp 8094
-
-# # COPY entrypoint.sh /entrypoint.sh
-# # ENTRYPOINT ["/entrypoint.sh"]
-# # CMD ["telegraf"]
