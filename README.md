@@ -6,7 +6,7 @@ Telegraf is an open-source agent written in Go for collecting, processing, aggre
 
 Follow the original image readme at **https://hub.docker.com/_/telegraf**
 
-## PostgreSQL output plugin from @svenklemm
+## PostgreSQL output plugin from @phemmer
 
 This image is built including the custom output plugin for PostgreSQL, from **https://github.com/phemmer/telegraf/tree/postgres**
 
